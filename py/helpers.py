@@ -8,14 +8,16 @@ default_encoding = 'utf-8'
 def does_bible_json_exist(version, language):
     path = os.path.abspath(f'bibles/{language}/{version}')
     filename = f'{path}/{version}.json'
+    npm = f'{path}/{version}.js'
     return {
         'exists': os.path.exists(filename),
         'path': path,
-        'filename': filename
+        'filename': filename,
+        'npm': npm
     }
 
 
-def write_bible_json(bible, partials):
+def write_bible_json(bible, partials, npm):
     version = bible['version']
     language = bible['meta']['language']
     encoding = bible['meta']['encoding'] or default_encoding
@@ -25,10 +27,16 @@ def write_bible_json(bible, partials):
     if not os.path.exists(exists_obj['path']):
         os.makedirs(exists_obj['path'])
 
-    # write real JSON file
-    print(f'{version} - writing JSON file')
-    with open(exists_obj['filename'], 'w', encoding=encoding) as f:
-        json.dump(bible, f, ensure_ascii=False)
+    if npm:
+        print(f'{version} - writing NPM file')
+        with open(exists_obj['npm'], 'w', encoding=encoding) as f:
+            f.write('var '+version+'='+json.dumps(bible, ensure_ascii=False)+';module.exports='+version+';')
+            f.close()
+    else:
+        # write real JSON file
+        print(f'{version} - writing JSON file')
+        with open(exists_obj['filename'], 'w', encoding=encoding) as f:
+            json.dump(bible, f, ensure_ascii=False)
 
     # pretty partial JSON file, only used for understanding JSON structure
     if partials:

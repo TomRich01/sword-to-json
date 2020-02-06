@@ -4,3 +4,4 @@
 /venv/
 __pycache__/
 # /bibles/**/*-partial.json
+.DS_Store
